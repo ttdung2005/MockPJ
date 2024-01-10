@@ -2,25 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Post;
+use App\Http\Controllers\Controller;
 
 class PostController extends Controller
 {
+    protected $model;
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //postテーブルからtitle,userIdを$usersに格納
-        $posts = DB::table('posts')
-            ->select('id', 'title', 'userId')
-            ->get();
+    {      
+        $this->model = new Post();
 
-        //viewを返す(compactでviewに$postsを渡す)
-        return view('post/index', compact('posts'));
+        $posts = $this->model->with("user")->get();
+
+        return view('posts.index', compact(
+            'posts',
+        ));
+        // //postテーブルからtitle,userIdを$usersに格納
+        // $posts = DB::table('posts')
+        //     ->select('id', 'title', 'userId')
+        //     ->get();
+
+        // //viewを返す(compactでviewに$postsを渡す)
+        // return view('post/index', compact('posts'));
     }
 
     /**
@@ -28,7 +37,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('post/create');
+        return view('posts/create');
     }
 
     /**
@@ -55,7 +64,7 @@ class PostController extends Controller
     {
         $post = Post::find($id);
 
-        return view('post/show', compact('post'));
+        return view('posts/show', compact('post'));
     }
 
     /**
@@ -65,7 +74,7 @@ class PostController extends Controller
     {
         $post = Post::find($id);
 
-        return view('post/edit', compact('post'));
+        return view('posts/edit', compact('post'));
     }
 
     /**
@@ -91,10 +100,10 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        $post=Post::find($id);
+        $post = Post::find($id);
 
         $post->delete();
-    
+
         return redirect('post/index');
     }
 }
